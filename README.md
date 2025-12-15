@@ -1,7 +1,19 @@
-# SI 670 Final Project: Fantasy Football Quantile Predictions
+# SI 670 Applied Machine Learning Final Project: Fantasy Football Quantile Predictions
 
-**Course:** SI 670 - Applied Machine Learning  
-**University of Michigan School of Information**
+**University of Michigan**
+
+---
+
+## 🚀 Quick Start — Run These Notebooks
+
+| Notebook | Purpose | Run Order |
+|----------|---------|-----------|
+| **`SI670_Final_Project_Model_v4.ipynb`** | Core model training & evaluation | **Run First** |
+| **`SI670_Final_Project_Fantasy_v2.ipynb`** | ESPN Fantasy integration & roster predictions | **Run Second** |
+
+> **Note:** Each notebook is self-contained. Run all cells from top to bottom.
+
+---
 
 ## Project Overview
 
@@ -16,58 +28,74 @@ Standard fantasy projections provide a single number (e.g., "14.5 points"), but 
 
 ## Data
 
-- **Source:** NFL play-by-play data via `nfl_data_py` (2022-2025 seasons)
-- **Scope:** ~150,000 plays filtered to ~107,000 fantasy-relevant observations
+- **Source:** NFL play-by-play data via `nfl_data_py` (2015-2024 seasons)
+- **Scope:** ~500,000+ fantasy-relevant plays across 10 seasons
 - **Target:** Weekly fantasy points (Half-PPR scoring)
 - **Integration:** ESPN Fantasy API for real roster predictions
 
 ## Features
 
-| Feature | Description |
-|---------|-------------|
-| Y_lag_1 | Previous week's fantasy points |
-| Y_roll_avg_3 | 3-week rolling average |
-| Y_cum_avg | Season/career average |
-| Y_std_3 | 3-week volatility (standard deviation) |
-| Y_min_3 | Recent floor (minimum of last 3 weeks) |
-| Y_max_3 | Recent ceiling (maximum of last 3 weeks) |
-| Position | One-hot encoded (QB, RB, WR/TE, Other) |
+The model uses sophisticated feature engineering including:
+- **Time-series features:** Lagged points, rolling averages, cumulative averages
+- **Volatility features:** Rolling std, MAE, deviation from average
+- **Workload features:** Play share, target share
+- **Opponent features:** Defensive EPA allowed (rolling 5-week)
+- **Boom probability:** Spike rate (% of recent games ≥20 points)
 
 ## Model
 
 - **Algorithm:** Histogram Gradient Boosting Quantile Regressor
-- **Quantiles:** 0.10, 0.50, 0.90
-- **Training:** Time-series split (train on weeks before prediction week)
+- **Quantiles:** 0.10 (floor), 0.50 (median), 0.90 (ceiling)
+- **Hyperparameters:** max_depth=8, learning_rate=0.01, max_iter=2000
+- **Training:** Chronological 90/10 split (no data leakage)
 
 ## Repository Structure
 
 ```
-├── SI670_Final_Project_EDA.ipynb      # Exploratory data analysis
-├── SI670_Final_Project_Model.ipynb    # Initial model development
-├── SI670_Final_Project_Model_v2.ipynb # Extended model with visualizations
-├── SI670_Final_Project_Fantasy.ipynb  # ESPN integration & predictions
+├── SI670_Final_Project_Model_v4.ipynb    # ⭐ PRIMARY: Model training & evaluation
+├── SI670_Final_Project_Fantasy_v2.ipynb  # ⭐ PRIMARY: ESPN integration & predictions
+├── SI670_Final_Project_EDA.ipynb         # Exploratory data analysis
+├── SI670_Final_Project_Model.ipynb       # Initial model development (archived)
+├── SI670_Final_Project_Model_v2.ipynb    # Model iteration (archived)
+├── SI670_Final_Project_Model_v3.ipynb    # Model iteration (archived)
+├── SI670_Final_Project_Fantasy.ipynb     # Initial fantasy integration (archived)
 └── README.md
 ```
 
 ## Results
 
-For Week 13 of the 2025 NFL season:
-- **90% prediction interval coverage** (9/10 actual scores within predicted range)
-- Model successfully captures fantasy football's inherent volatility
-- Limitations: Wide prediction intervals due to limited pre-game features
+**Model Performance (Model_v4):**
+- **MAE (Median):** 2.47 fantasy points
+- **80% Prediction Interval Coverage:** 76.89%
+- **Pinball Loss (10th quantile):** 0.4358
+
+**Benchmark Comparison:**
+| Model | Test MAE | Test R² | PICP |
+|-------|----------|---------|------|
+| Quantile HGBR (Ours) | 2.47 | 0.70 | 76.89% |
+| Decision Tree | 2.58 | 0.71 | N/A |
+| Ridge Regression | 2.94 | 0.65 | N/A |
 
 ## Requirements
 
-```
-pip install nfl_data_py espn_api scikit-learn pandas numpy matplotlib
+```bash
+pip install nfl_data_py espn_api scikit-learn pandas numpy matplotlib seaborn
 ```
 
 ## Usage
 
-1. Update ESPN credentials in `SI670_Final_Project_Fantasy.ipynb`
-2. Run all cells to train model and generate predictions
-3. View floor/median/ceiling predictions for your roster
+### Option 1: Model Only (Model_v4)
+1. Open `SI670_Final_Project_Model_v4.ipynb`
+2. Run all cells
+3. View model evaluation, feature importance, and quantile curves
+
+### Option 2: Full Fantasy Integration (Fantasy_v2)
+1. Open `SI670_Final_Project_Fantasy_v2.ipynb`
+2. (Optional) Update ESPN credentials for your league
+3. Run all cells
+4. View floor/median/ceiling predictions for your roster
 
 ## Authors
 
-SI 670 Applied Machine Learning - Final Project
+- Kyle Ciarkowski
+- Arjun Mayur
