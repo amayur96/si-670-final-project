@@ -4,7 +4,7 @@
 
 ---
 
-## 🚀 Quick Start — Run These Notebooks
+## Quick Start — Run These Notebooks
 
 | Notebook | Purpose | Run Order |
 |----------|---------|-----------|
